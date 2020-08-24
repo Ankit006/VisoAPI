@@ -12,7 +12,7 @@ router.post("/signup",async (req,res)=>{
         await user.save()
         res.status(201).json({message:"Signup successfully",token:token})
     }catch(err){
-        res.status(500).json({error:"error while creating account,try using different information"})
+        res.status(406).json({error:"error while creating account,try using different information"})
     }
 })
 
