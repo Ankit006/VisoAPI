@@ -8,10 +8,12 @@ const port = process.env.PORT || 3000;
 
 // get express router
 const userRouter = require("./routers/userRouter");
+const otherImageUpload = require("./uploadRouter/otherUpload");
 
 // middleware
 app.use(express.json())
 app.use(userRouter)
+app.use(otherImageUpload)
 
 
 

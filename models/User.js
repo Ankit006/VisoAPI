@@ -21,8 +21,17 @@ const userSchema = mongoose.Schema({
     password:{
         type:String,
         minlength:7,
-        trim:true
-    }
+        trim:true,
+        required:true
+    },
+    profilePic:{
+        type:String
+    },
+    uploadPic:[
+        {
+            type:String
+        }
+    ]
 })
 
 userSchema.pre("save", async function(next){

@@ -4,6 +4,8 @@ const bcrypt = require("bcryptjs");
 const auth = require("../auth");
 const User = require("../models/User");
 
+
+///////////////////////////// Setup API //////////////////////////////////
 // create user account
 router.post("/signup",async (req,res)=>{
     const user = new User(req.body);
