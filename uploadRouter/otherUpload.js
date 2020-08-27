@@ -9,11 +9,10 @@ let imageName;
 
 const storage = multer.diskStorage({
     destination: (req,file,cb)=>{
-        cb(null,"Public/otherUpload")
+        cb(null,`Public/otherUpload/${req.user._id}`)
     },
     filename:(req,file,cb)=>{
         imageName = file.fieldname+Date.now()+path.extname(file.originalname)
-        console.log(imageName)
         cb(null,imageName)
     }
 })
@@ -41,7 +40,7 @@ otherUploadRouter.post("/otherUpload",auth,upload.single("other"),async (req,res
         })
 
     }catch(err){
-        res.json({error:err})
+        res.status(406).json({error:err})
     }
 })
 
