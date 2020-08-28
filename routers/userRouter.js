@@ -4,10 +4,11 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 const auth = require("../auth");
 const User = require("../models/User");
+const path = require("path")
 
 
+///////////////////////////// authentication  API //////////////////////////////////
 
-///////////////////////////// Setup API //////////////////////////////////
 // create user account
 router.post("/signup",async (req,res)=>{
     const user = new User(req.body);
@@ -17,6 +18,10 @@ router.post("/signup",async (req,res)=>{
         await user.save()
         // create a directory on Public/otherUpload using user id for saving users uploaded pictures
         await fs.mkdir(`Public/otherUpload/${user._id}`,(err)=>{
+            if (err) return res.status(500)
+        })
+        // create a directory on Public/profileUpload using user id for saving users profile pictures
+        await fs.mkdir(`Public/profileUpload/${user._id}`,(err)=>{
             if (err) return res.status(500)
         })
 
@@ -51,15 +56,25 @@ router.delete("/removeUser", auth,async (req,res)=>{
     try{
         await User.deleteOne({_id:req.user._id})
 
-        // delete every files Public/otherUpload/${user id}  directory
-        const files = fs.readdirSync(`Public/otherUpload/${req.user._id}`,"utf8");
-        for(let x =0;x<files.length;x++){
-            await fs.unlink(`Public/otherUpload/${req.user._id}/${files[x]}`,(err)=>{
+        // delete every pic from Public/otherUpload/${user id}  directory
+        const uploadPhotos = fs.readdirSync(`Public/otherUpload/${req.user._id}`,"utf8");
+        for(let x =0;x<uploadPhotos.length;x++){
+            await fs.unlink(`Public/otherUpload/${req.user._id}/${uploadPhotos[x]}`,(err)=>{
                 if(err) return res.status(500)
             })
         }
+          // delete profile pic from Public/profileUpload/${user id}  directory
+          const profilePic = fs.readdirSync(`Public/profileUpload/${req.user._id}`,"utf8");
+          await fs.unlink(`Public/profileUpload/${req.user._id}/${profilePic[0]}`,(err)=>{
+            if(err) return res.status(500)
+        })
+
         // delete Public/otherUpload/${user id} directory
         await fs.rmdir(`Public/otherUpload/${req.user._id}`,(err)=>{
+            if(err) return res.status(500)
+        })
+        // delete Public/profileUpload/${user id} directory
+        await fs.rmdir(`Public/profileUpload/${req.user._id}`,(err)=>{
             if(err) return res.status(500)
         })
         
@@ -67,6 +82,25 @@ router.delete("/removeUser", auth,async (req,res)=>{
     }catch(Err){
         res.status(500).json({error:"Internal server error"})
     }
+})
+
+
+//////////////////////serve images API//////////////////
+
+// send profile pic
+router.get("/profileImage",auth,(req,res)=>{
+     res.sendFile(path.join(__dirname,`../Public/profileUpload/${req.user._id}/${req.user.profilePic}`))
+})
+
+router.get("/listOfImages",auth,async (req,res)=>{
+       fs.readdir(`Public/otherUpload/${req.user._id}`,"utf8",(err,files)=>{
+           if(err) return res.status(404)
+           res.status(201).json({ "list" : files})
+       })
+})
+
+router.get("/uploadImage/:name",auth,(req,res)=>{
+    res.sendFile(path.join(__dirname,`../Public/otherUpload/${req.user._id}/${req.params.name}`))
 })
 
 

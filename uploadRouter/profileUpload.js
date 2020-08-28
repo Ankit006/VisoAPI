@@ -10,7 +10,7 @@ let imageName;
 
 const storage = multer.diskStorage({
     destination:(req,file,cb)=>{
-        cb(null,"Public/profileUpload")
+        cb(null,`Public/profileUpload/${req.user._id}`)
     },
     filename:(req,file,cb)=>{
         imageName = file.fieldname+Date.now()+path.extname(file.originalname)
@@ -33,7 +33,7 @@ profilePicUpload.post("/profileUpload",auth,upload.single("profile"), async (req
     const user = req.user
 
     if(user.profilePic){
-        await fs.unlink(`Public/profileUpload/${user.profilePic}`,(err)=>{
+        await fs.unlink(`Public/profileUpload/${user._id}/${user.profilePic}`,(err)=>{
             if(err) return res.status(500)
         })
     }
