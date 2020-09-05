@@ -14,6 +14,21 @@ const userSchema = mongoose.Schema({
         required:true,
         trim:true
     },
+    country:{
+        type:String,
+        required:true,
+        trim:true
+    },
+    state:{
+        type:String,
+        required:true,
+        trim:true
+    },
+    zip:{
+        type:Number,
+        required:true,
+        trim:true
+    },
     email:{
         type:String,
         required:true,
@@ -49,6 +64,9 @@ userSchema.pre("save", async function(next){
 userSchema.methods.generateAuthToken = async function(){
     const user = this;
     const token = await jwt.sign({_id:user._id.toString()},process.env.SECRETKEY)
+    const refreshToken = await jwt.sign({_id:user._id.toString()},process.env.REFRESHKEY,{
+        expiresIn:"5d"
+    })
     return token
 }
 

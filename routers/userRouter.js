@@ -4,7 +4,7 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 const auth = require("../auth");
 const User = require("../models/User");
-const path = require("path")
+const path = require("path");
 
 
 ///////////////////////////// authentication  API //////////////////////////////////
@@ -32,6 +32,8 @@ router.post("/signup",async (req,res)=>{
     }
 })
 
+
+
 // login user
 router.post("/login",async (req,res)=>{
     
@@ -51,7 +53,6 @@ router.post("/login",async (req,res)=>{
 
 
 // delete user account
-
 router.delete("/removeUser", auth,async (req,res)=>{
     try{
         await User.deleteOne({_id:req.user._id})
@@ -85,6 +86,7 @@ router.delete("/removeUser", auth,async (req,res)=>{
 })
 
 
+
 //////////////////////serve images API//////////////////
 
 // send profile pic
@@ -92,6 +94,8 @@ router.get("/profileImage",auth,(req,res)=>{
      res.sendFile(path.join(__dirname,`../Public/profileUpload/${req.user._id}/${req.user.profilePic}`))
 })
 
+
+// send other uploaded images
 router.get("/listOfImages",auth,async (req,res)=>{
        fs.readdir(`Public/otherUpload/${req.user._id}`,"utf8",(err,files)=>{
            if(err) return res.status(404)
@@ -102,6 +106,34 @@ router.get("/listOfImages",auth,async (req,res)=>{
 router.get("/uploadImage/:name",auth,(req,res)=>{
     res.sendFile(path.join(__dirname,`../Public/otherUpload/${req.user._id}/${req.params.name}`))
 })
+
+
+/////////////// friend suggestion /////////////////////
+
+// friend suggestion
+router.get("/suggestionList",auth,async (req,res)=>{
+    const users = await User.find(req.body);
+    let Ids = [];
+    if(users.length <= 20){
+        for(let i=0;i<users.length;i++){
+            Ids.push(users[i]._id)
+        }
+    }else{
+        for(let i=0;i<=20;i++){
+            Ids.push(users[i]._id)
+        }
+    }
+    res.send(Ids)
+})
+
+
+// send suggestion profile images
+
+router.get("/suggestion/profileImage/:id",auth,async(req,res)=>{
+    const profileImageName = fs.readdirSync(`Public/profileUpload/${req.params.id}`,"utf8") 
+    res.sendFile(path.join(__dirname,`../Public/profileUpload/${req.params.id}/${profileImageName[0]}`))
+})
+
 
 
 module.exports = router

@@ -1,3 +1,6 @@
 node_modules
 .env
 request.rest
+cert.pem
+key.pem
+keytmp.pem
